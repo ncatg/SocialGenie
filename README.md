@@ -1,21 +1,42 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# SocialGenie
 
-# Run and deploy your AI Studio app
+SocialGenie is a cross-platform AI social media content generator, image designer, and scheduling suite built for Android using Kotlin and Jetpack Compose.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/c2b3e444-bd25-4292-8a71-964529d050b7
+- **Content Creation**: Use AI to draft and organize social media posts.
+- **Material 3 Expressive UI**: Aesthetic and modern design leveraging Jetpack Compose and Material 3 guidelines.
+- **Scheduling**: Queue generated content for later publication.
+- **Analytics & Templates**: Pre-built templates and a dashboard to analyze social media engagement.
 
-## Run Locally
+## Requirements
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+- Android Studio or standard Gradle build environment
+- Kotlin version 1.9+
+- targetSdk 34+
 
+## Building the App
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
+This project uses Gradle for its build system. To compile and run the application locally:
+
+### Option 1: Terminal
+
+Run standard Gradle tasks:
+```bash
+gradle assembleDebug
+```
+
+To run unit tests:
+```bash
+gradle testDebugUnitTest
+```
+
+### Option 2: Android Studio
+
+- Open Android Studio.
+- Select `Open an existing Android Studio project` and navigate to this repository's root folder.
+- Let Gradle sync and then select `Run -> Run 'app'` from the top menu.
+
+## CI/CD
+
+We provide a basic GitHub Actions workflow in `.github/workflows/android.yml` to automatically build and test the application on push and pull requests to the `main` branch. 
