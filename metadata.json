@@ -1,0 +1,6 @@
+{
+  "name": "SocialGenie",
+  "description": "Cross-platform AI social media content generator, image designer, and scheduling suite.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
