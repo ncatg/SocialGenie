@@ -2,6 +2,7 @@ package com.example.ui
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -173,13 +174,24 @@ fun SocialGenieApp(viewModel: MainViewModel) {
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            when (viewModel.activeScreen) {
-                Screen.DASHBOARD -> DashboardScreen(viewModel, drafts, templates, profiles)
-                Screen.CREATE -> CreateScreen(viewModel)
-                Screen.SCHEDULE -> ScheduleScreen(viewModel, drafts)
-                Screen.ANALYTICS -> AnalyticsScreen(viewModel, drafts)
-                Screen.TEMPLATES -> TemplatesScreen(viewModel, templates)
-                Screen.TEAM -> TeamScreen(viewModel, profiles)
+            AnimatedContent(
+                targetState = viewModel.activeScreen,
+                label = "ScreenTransitions",
+                transitionSpec = {
+                    (fadeIn(animationSpec = tween(300)) + 
+                     slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(300))) togetherWith
+                    (fadeOut(animationSpec = tween(300)) +
+                     slideOutVertically(targetOffsetY = { -50 }, animationSpec = tween(300)))
+                }
+            ) { screen ->
+                when (screen) {
+                    Screen.DASHBOARD -> DashboardScreen(viewModel, drafts, templates, profiles)
+                    Screen.CREATE -> CreateScreen(viewModel)
+                    Screen.SCHEDULE -> ScheduleScreen(viewModel, drafts)
+                    Screen.ANALYTICS -> AnalyticsScreen(viewModel, drafts)
+                    Screen.TEMPLATES -> TemplatesScreen(viewModel, templates)
+                    Screen.TEAM -> TeamScreen(viewModel, profiles)
+                }
             }
         }
     }
@@ -873,19 +885,21 @@ fun CreateScreen(viewModel: MainViewModel) {
                         )
                         tones.forEach { (toneName, selectIcon) ->
                             val isSelected = viewModel.selectedTone == toneName
+                            val bgColor by animateColorAsState(
+                                targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                            )
+                            val borderColor by animateColorAsState(
+                                targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                            )
                             
                             // Custom styled chip following the precise Tailwind styling of HTML
                             Box(
                                 modifier = Modifier
                                     .clip(MaterialTheme.shapes.extraSmall)
-                                    .background(
-                                        if (isSelected) MaterialTheme.colorScheme.primaryContainer 
-                                        else MaterialTheme.colorScheme.surface
-                                    )
+                                    .background(bgColor)
                                     .border(
                                         width = 1.dp,
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary 
-                                                else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                        color = borderColor,
                                         shape = MaterialTheme.shapes.extraSmall
                                     )
                                     .clickable { viewModel.selectedTone = toneName }
@@ -925,7 +939,8 @@ fun CreateScreen(viewModel: MainViewModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .testTag("generate_button"),
+                        .testTag("generate_button")
+                        .animateContentSize(),
                     enabled = !viewModel.isGenerating,
                     shape = MaterialTheme.shapes.extraLarge, // Fully rounded pill shape
                     colors = ButtonDefaults.buttonColors(
@@ -934,28 +949,35 @@ fun CreateScreen(viewModel: MainViewModel) {
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                 ) {
-                    if (viewModel.isGenerating) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            "Engaging Gemini AI...",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome, 
-                            contentDescription = "Spark",
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            "GENERATE DRAFTS",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
-                        )
+                    AnimatedContent(
+                        targetState = viewModel.isGenerating,
+                        label = "GenerateButtonAnim"
+                    ) { isGen ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (isGen) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    "Engaging Gemini AI...",
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome, 
+                                    contentDescription = "Spark",
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "GENERATE DRAFTS",
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -993,11 +1015,13 @@ fun CreateScreen(viewModel: MainViewModel) {
                     val platforms = listOf("LinkedIn", "Twitter/X", "Instagram")
                     platforms.forEach { platformName ->
                         val isSelected = viewModel.activePreviewPlatform == platformName
+                        val bgColor by animateColorAsState(targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                        val textColor by animateColorAsState(targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
                         Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(MaterialTheme.shapes.extraLarge)
-                                .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                                .background(bgColor)
                                 .clickable { viewModel.activePreviewPlatform = platformName }
                                 .padding(vertical = 10.dp)
                                 .testTag("platform_tab_$platformName"),
@@ -1008,7 +1032,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                                 style = MaterialTheme.typography.labelLarge.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
-                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                color = textColor
                             )
                         }
                     }
@@ -1298,6 +1322,7 @@ fun VisualPostCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .animateContentSize()
             .aspectRatio(aspect)
             .clip(MaterialTheme.shapes.medium)
             .background(gradient)
