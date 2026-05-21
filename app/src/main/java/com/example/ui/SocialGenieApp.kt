@@ -64,64 +64,53 @@ fun SocialGenieApp(viewModel: MainViewModel) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .size(48.dp)
+                                .clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.primaryContainer)
-                                .padding(4.dp),
+                                .padding(8.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AutoAwesome,
                                 contentDescription = "App Logo Logo",
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(28.dp)
                             )
                         }
                         Text(
                             text = "SocialGenie",
                             style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = (-0.5).sp
                             )
                         )
                     }
                 },
                 actions = {
-                    Box(
+                    IconButton(
+                        onClick = { viewModel.setScreen(if (viewModel.activeScreen == Screen.TEAM) Screen.DASHBOARD else Screen.TEAM) },
                         modifier = Modifier
                             .padding(end = 16.dp)
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .size(48.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .background(Color.Green, CircleShape)
-                            )
-                            Text(
-                                "Workspace Active",
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
+                        Icon(Icons.Default.People, contentDescription = "Team", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier.padding(vertical = 12.dp)
             )
         },
         bottomBar = {
@@ -148,11 +137,13 @@ fun SocialGenieApp(viewModel: MainViewModel) {
                     onClick = { viewModel.setScreen(Screen.SCHEDULE) },
                     icon = {
                         val count = drafts.count { it.status == "SCHEDULED" }
-                        BadgedBox(badge = {
-                            if (count > 0) {
+                        if (count > 0) {
+                            BadgedBox(badge = {
                                 Badge { Text(count.toString()) }
+                            }) {
+                                Icon(Icons.Default.DateRange, "Queue Status")
                             }
-                        }) {
+                        } else {
                             Icon(Icons.Default.DateRange, "Queue Status")
                         }
                     },
@@ -172,13 +163,6 @@ fun SocialGenieApp(viewModel: MainViewModel) {
                     icon = { Icon(Icons.Default.LibraryBooks, "Templates Library") },
                     label = { Text("Templates") },
                     modifier = Modifier.testTag("nav_templates")
-                )
-                NavigationBarItem(
-                    selected = viewModel.activeScreen == Screen.TEAM,
-                    onClick = { viewModel.setScreen(Screen.TEAM) },
-                    icon = { Icon(Icons.Default.People, "Team Collaboration") },
-                    label = { Text("Team") },
-                    modifier = Modifier.testTag("nav_team")
                 )
             }
         }
@@ -233,7 +217,7 @@ fun DashboardScreen(
                     .fillMaxWidth()
                     .padding(top = 4.dp)
                     .testTag("dashboard_welcome_card"),
-                shape = RoundedCornerShape(24.dp),
+                shape = MaterialTheme.shapes.medium,
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
@@ -258,7 +242,7 @@ fun DashboardScreen(
                         )
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(MaterialTheme.shapes.extraSmall)
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
@@ -309,8 +293,8 @@ fun DashboardScreen(
                     Card(
                         modifier = Modifier
                             .weight(1f)
-                            .height(96.dp),
-                        shape = RoundedCornerShape(16.dp),
+                            .height(108.dp),
+                        shape = MaterialTheme.shapes.large,
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
                         )
@@ -350,8 +334,8 @@ fun DashboardScreen(
                     Card(
                         modifier = Modifier
                             .weight(1f)
-                            .height(96.dp),
-                        shape = RoundedCornerShape(16.dp),
+                            .height(108.dp),
+                        shape = MaterialTheme.shapes.large,
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
                         )
@@ -392,7 +376,7 @@ fun DashboardScreen(
                         modifier = Modifier
                             .weight(1f)
                             .height(96.dp),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = MaterialTheme.shapes.medium,
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
                         )
@@ -454,7 +438,7 @@ fun DashboardScreen(
                             .weight(1f)
                             .clickable { viewModel.setScreen(Screen.CREATE) }
                             .testTag("action_craft_campaign"),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MaterialTheme.shapes.small,
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                     ) {
@@ -483,7 +467,7 @@ fun DashboardScreen(
                             .weight(1f)
                             .clickable { viewModel.setScreen(Screen.TEMPLATES) }
                             .testTag("action_templates"),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MaterialTheme.shapes.small,
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                     ) {
@@ -512,7 +496,7 @@ fun DashboardScreen(
                             .weight(1f)
                             .clickable { viewModel.setScreen(Screen.TEAM) }
                             .testTag("action_team"),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MaterialTheme.shapes.small,
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                     ) {
@@ -572,7 +556,7 @@ fun DashboardScreen(
                                     viewModel.selectedTone = tone
                                     viewModel.setScreen(Screen.CREATE)
                                 },
-                            shape = RoundedCornerShape(16.dp),
+                            shape = MaterialTheme.shapes.medium,
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         ) {
@@ -642,8 +626,8 @@ fun DashboardScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.medium)
                             .padding(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -671,7 +655,7 @@ fun DashboardScreen(
                             Button(
                                 onClick = { viewModel.setScreen(Screen.CREATE) },
                                 modifier = Modifier.padding(top = 8.dp),
-                                shape = RoundedCornerShape(8.dp)
+                                shape = MaterialTheme.shapes.extraSmall
                             ) {
                                 Text("Engage AI Genie")
                             }
@@ -684,7 +668,7 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .testTag("recent_draft_item_${draft.id}"),
-                                shape = RoundedCornerShape(16.dp),
+                                shape = MaterialTheme.shapes.medium,
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                             ) {
@@ -821,7 +805,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                 // Premium Core Idea Card from Clean Minimal HTML specifications
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp), // 3xl roundness
+                    shape = MaterialTheme.shapes.large, // 3xl roundness
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     ),
@@ -899,7 +883,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                             // Custom styled chip following the precise Tailwind styling of HTML
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .clip(MaterialTheme.shapes.extraSmall)
                                     .background(
                                         if (isSelected) MaterialTheme.colorScheme.primaryContainer 
                                         else MaterialTheme.colorScheme.surface
@@ -908,7 +892,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                                         width = 1.dp,
                                         color = if (isSelected) MaterialTheme.colorScheme.primary 
                                                 else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                                        shape = RoundedCornerShape(8.dp)
+                                        shape = MaterialTheme.shapes.extraSmall
                                     )
                                     .clickable { viewModel.selectedTone = toneName }
                                     .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -949,7 +933,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                         .height(56.dp)
                         .testTag("generate_button"),
                     enabled = !viewModel.isGenerating,
-                    shape = RoundedCornerShape(28.dp), // Fully rounded pill shape
+                    shape = MaterialTheme.shapes.extraLarge, // Fully rounded pill shape
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -1007,7 +991,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(30.dp))
+                        .clip(MaterialTheme.shapes.extraLarge)
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -1018,7 +1002,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .clip(RoundedCornerShape(30.dp))
+                                .clip(MaterialTheme.shapes.extraLarge)
                                 .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
                                 .clickable { viewModel.activePreviewPlatform = platformName }
                                 .padding(vertical = 10.dp)
@@ -1082,7 +1066,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                             .fillMaxWidth()
                             .padding(top = 4.dp),
                         singleLine = true,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = MaterialTheme.shapes.small
                     )
 
                     // Gradient Presets list to customize design
@@ -1100,12 +1084,12 @@ fun CreateScreen(viewModel: MainViewModel) {
                             Box(
                                 modifier = Modifier
                                     .size(width = 110.dp, height = 44.dp)
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .clip(MaterialTheme.shapes.extraSmall)
                                     .background(getPresetGradient(gradName))
                                     .border(
                                         width = if (isCurrentGrad) 3.dp else 0.dp,
                                         color = if (isCurrentGrad) MaterialTheme.colorScheme.onBackground else Color.Transparent,
-                                        shape = RoundedCornerShape(8.dp)
+                                        shape = MaterialTheme.shapes.extraSmall
                                     )
                                     .clickable {
                                         when (viewModel.activePreviewPlatform) {
@@ -1183,7 +1167,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(180.dp),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = MaterialTheme.shapes.small
                     )
                 }
             }
@@ -1192,7 +1176,7 @@ fun CreateScreen(viewModel: MainViewModel) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.medium,
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
                 ) {
                     Column(
@@ -1240,7 +1224,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("save_draft_btn"),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = MaterialTheme.shapes.small
                         ) {
                             Icon(Icons.Default.Save, "Save Draft")
                             Spacer(modifier = Modifier.width(8.dp))
@@ -1286,7 +1270,7 @@ fun CreateScreen(viewModel: MainViewModel) {
                                 scheduleTimeDialog = false
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = MaterialTheme.shapes.extraSmall
                         ) {
                             Text(label)
                         }
@@ -1321,7 +1305,7 @@ fun VisualPostCard(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(aspect)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(MaterialTheme.shapes.medium)
             .background(gradient)
             .padding(20.dp),
         contentAlignment = Alignment.Center
@@ -1531,7 +1515,7 @@ fun CampaignCard(post: PostDraft, viewModel: MainViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag("campaign_card_${post.id}"),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -1572,7 +1556,7 @@ fun CampaignCard(post: PostDraft, viewModel: MainViewModel) {
 
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(30.dp))
+                        .clip(MaterialTheme.shapes.extraLarge)
                         .background(color)
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
@@ -1620,7 +1604,7 @@ fun CampaignCard(post: PostDraft, viewModel: MainViewModel) {
                     )
                     Text(post.linkedinText, style = MaterialTheme.typography.bodyMedium)
 
-                    Divider(modifier = Modifier.padding(vertical = 4.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
                     Text(
                         "🐦 Twitter/X Punchy Copy:",
@@ -1643,7 +1627,7 @@ fun CampaignCard(post: PostDraft, viewModel: MainViewModel) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
+                        .clip(MaterialTheme.shapes.small)
                         .background(Color(0xFFF1F8E9))
                         .padding(10.dp)
                 ) {
@@ -1716,7 +1700,7 @@ fun TinyPlatformCardPreview(platform: String, label: String, style: String) {
     Box(
         modifier = Modifier
             .size(width = 120.dp, height = 75.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.extraSmall)
             .background(getPresetGradient(style))
             .padding(6.dp)
     ) {
@@ -1814,7 +1798,7 @@ fun AnalyticsScreen(viewModel: MainViewModel, drafts: List<PostDraft>) {
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = MaterialTheme.shapes.medium,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp))
             ) {
                 Column(
@@ -1838,7 +1822,7 @@ fun AnalyticsScreen(viewModel: MainViewModel, drafts: List<PostDraft>) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(150.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f), MaterialTheme.shapes.small)
                             .padding(8.dp)
                     ) {
                         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -1918,7 +1902,7 @@ fun AnalyticsScreen(viewModel: MainViewModel, drafts: List<PostDraft>) {
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = MaterialTheme.shapes.medium,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f))
             ) {
                 Column(
@@ -1959,7 +1943,7 @@ fun AnalyticsScreen(viewModel: MainViewModel, drafts: List<PostDraft>) {
 fun AnalyticsKpiCard(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(12.dp)
+        shape = MaterialTheme.shapes.small
     ) {
         Row(
             modifier = Modifier
@@ -2012,7 +1996,7 @@ fun TemplatesScreen(viewModel: MainViewModel, templates: List<ContentTemplate>) 
 
             Button(
                 onClick = { customTemplateDialog = true },
-                shape = RoundedCornerShape(12.dp),
+                shape = MaterialTheme.shapes.small,
                 modifier = Modifier.testTag("add_template_btn")
             ) {
                 Icon(Icons.Default.Add, "Add Template")
@@ -2030,7 +2014,7 @@ fun TemplatesScreen(viewModel: MainViewModel, templates: List<ContentTemplate>) 
                         .fillMaxWidth()
                         .clickable { viewModel.setIdeaFromTemplate(template) }
                         .testTag("template_item_${template.id}"),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.medium,
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
                     )
@@ -2053,7 +2037,7 @@ fun TemplatesScreen(viewModel: MainViewModel, templates: List<ContentTemplate>) 
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
-                                .clip(RoundedCornerShape(10.dp))
+                                .clip(MaterialTheme.shapes.small)
                                 .background(MaterialTheme.colorScheme.primaryContainer),
                             contentAlignment = Alignment.Center
                         ) {
@@ -2072,7 +2056,7 @@ fun TemplatesScreen(viewModel: MainViewModel, templates: List<ContentTemplate>) 
                                 )
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(30.dp))
+                                        .clip(MaterialTheme.shapes.extraLarge)
                                         .background(MaterialTheme.colorScheme.secondaryContainer)
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
@@ -2219,7 +2203,7 @@ fun TeamScreen(viewModel: MainViewModel, profiles: List<CollaborationProfile>) {
 
             Button(
                 onClick = { newMemberDialog = true },
-                shape = RoundedCornerShape(12.dp),
+                shape = MaterialTheme.shapes.small,
                 modifier = Modifier.testTag("add_team_btn")
             ) {
                 Icon(Icons.Default.PersonAdd, "Add Member")
@@ -2231,7 +2215,7 @@ fun TeamScreen(viewModel: MainViewModel, profiles: List<CollaborationProfile>) {
         // Active Team Cards
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = MaterialTheme.shapes.medium,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp))
         ) {
             Column(
@@ -2279,7 +2263,7 @@ fun TeamScreen(viewModel: MainViewModel, profiles: List<CollaborationProfile>) {
 
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(30.dp))
+                                    .clip(MaterialTheme.shapes.extraLarge)
                                     .background(Color(0xFFE8F5E9))
                                     .padding(horizontal = 8.dp, vertical = 2.dp)
                             ) {
@@ -2298,7 +2282,7 @@ fun TeamScreen(viewModel: MainViewModel, profiles: List<CollaborationProfile>) {
         // Approval flow cards simulator
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = MaterialTheme.shapes.medium,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.25f))
         ) {
             Column(
