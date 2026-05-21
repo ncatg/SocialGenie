@@ -93,12 +93,17 @@ abstract class AppDatabase : RoomDatabase() {
             super.onCreate(db)
             INSTANCE?.let { database ->
                 scope.launch(Dispatchers.IO) {
-                    populateInitialData(database)
+                    try {
+                        populateInitialData(database)
+                    } catch (e: Exception) {
+                        android.util.Log.e("AppDatabase", "Error launching populateInitialData", e)
+                    }
                 }
             }
         }
 
         suspend fun populateInitialData(db: AppDatabase) {
+            try {
             // Seed content templates for the quick library
             val templates = listOf(
                 ContentTemplate(
@@ -183,6 +188,9 @@ abstract class AppDatabase : RoomDatabase() {
             )
             for (draft in drafts) {
                 db.postDraftDao().insertDraft(draft)
+            }
+            } catch (e: Exception) {
+                android.util.Log.e("AppDatabase", "Error inside populateInitialData", e)
             }
         }
     }

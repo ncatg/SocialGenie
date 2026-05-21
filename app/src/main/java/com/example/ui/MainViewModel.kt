@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 enum class Screen {
-    CREATE, SCHEDULE, ANALYTICS, TEMPLATES, TEAM
+    DASHBOARD, CREATE, SCHEDULE, ANALYTICS, TEMPLATES, TEAM
 }
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -50,7 +50,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     // Current screen navigation state
-    var activeScreen by mutableStateOf(Screen.CREATE)
+    var activeScreen by mutableStateOf(Screen.DASHBOARD)
         private set
 
     // Input States

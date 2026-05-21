@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -128,6 +130,13 @@ fun SocialGenieApp(viewModel: MainViewModel) {
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 NavigationBarItem(
+                    selected = viewModel.activeScreen == Screen.DASHBOARD,
+                    onClick = { viewModel.setScreen(Screen.DASHBOARD) },
+                    icon = { Icon(Icons.Default.Home, "Dashboard View") },
+                    label = { Text("Dashboard") },
+                    modifier = Modifier.testTag("nav_dashboard")
+                )
+                NavigationBarItem(
                     selected = viewModel.activeScreen == Screen.CREATE,
                     onClick = { viewModel.setScreen(Screen.CREATE) },
                     icon = { Icon(Icons.Default.Create, "Craft Content") },
@@ -186,11 +195,596 @@ fun SocialGenieApp(viewModel: MainViewModel) {
                 label = "ScreenTransitions"
             ) { screen ->
                 when (screen) {
+                    Screen.DASHBOARD -> DashboardScreen(viewModel, drafts, templates, profiles)
                     Screen.CREATE -> CreateScreen(viewModel)
                     Screen.SCHEDULE -> ScheduleScreen(viewModel, drafts)
                     Screen.ANALYTICS -> AnalyticsScreen(viewModel, drafts)
                     Screen.TEMPLATES -> TemplatesScreen(viewModel, templates)
                     Screen.TEAM -> TeamScreen(viewModel, profiles)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DashboardScreen(
+    viewModel: MainViewModel,
+    drafts: List<PostDraft>,
+    templates: List<ContentTemplate>,
+    profiles: List<CollaborationProfile>
+) {
+    val totalDrafts = drafts.count { it.status == "DRAFT" }
+    val totalScheduled = drafts.count { it.status == "SCHEDULED" }
+    val totalPosted = drafts.count { it.status == "POSTED" }
+    val totalViews = drafts.filter { it.status == "POSTED" }.sumOf { it.views }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp)
+    ) {
+        // 1. Welcome Header Card - Styled perfectly with pure Ice Blue color scheme in SEC 2025 Blue specifications
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
+                    .testTag("dashboard_welcome_card"),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "CREATIVE DASHBOARD",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.5.sp
+                            ),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                "Gemini Hub v2",
+                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = "Good day, Creator!",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = (-0.5).sp
+                        ),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+
+                    Text(
+                        text = "Orchestrate your multi-channel digital campaigns. Author content with AI intelligence, schedule posts, and view live results.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        }
+
+        // 2. Metrics & KPI Section
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = "WORKSPACE STATUS",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
+                    ),
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // KPI Card 1: Pipeline
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(96.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Pending",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Schedule,
+                                    contentDescription = "Schedule",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Text(
+                                text = "${totalDrafts + totalScheduled}",
+                                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+
+                    // KPI Card 2: Published
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(96.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Published",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "Live",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = Color(0xFF2E7D32)
+                                )
+                            }
+                            Text(
+                                text = "$totalPosted",
+                                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+
+                    // KPI Card 3: Reach Summary
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(96.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Total Views",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                                    contentDescription = "Trend",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                            Text(
+                                text = if (totalViews > 1000) String.format(java.util.Locale.US, "%.1fk", totalViews / 1000f) else "$totalViews",
+                                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Quick Creative Actions Suite
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = "LAUNCH QUICK ACTIONS",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
+                    ),
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Action 1: Craft Post
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { viewModel.setScreen(Screen.CREATE) }
+                            .testTag("action_craft_campaign"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Create,
+                                contentDescription = "Craft",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                "Craft Post",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    // Action 2: Templates Library
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { viewModel.setScreen(Screen.TEMPLATES) }
+                            .testTag("action_templates"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LibraryBooks,
+                                contentDescription = "Library",
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                "Library",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    // Action 3: Team Collaboration
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { viewModel.setScreen(Screen.TEAM) }
+                            .testTag("action_team"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.People,
+                                contentDescription = "Team",
+                                tint = Color(0xFF673AB7),
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                "Collaborators",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. Brainstorm Catalysts Row
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = "AI BRAINSTORM CATALYSTS",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
+                    ),
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val catalysts = listOf(
+                        Triple("Tech Wave Insights", "Analyzing emerging developer ecosystem paradigms", "professional"),
+                        Triple("Sleek Minimalism", "The art of design spacing and restraint in products", "professional"),
+                        Triple("Coding Fuel", "Amusing anecdotes and developer high-velocity jokes", "witty")
+                    )
+
+                    catalysts.forEach { (title, description, tone) ->
+                        Card(
+                            modifier = Modifier
+                                .width(200.dp)
+                                .clickable {
+                                    viewModel.inputIdea = title + ": " + description
+                                    viewModel.selectedTone = tone
+                                    viewModel.setScreen(Screen.CREATE)
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(
+                                            when (tone) {
+                                                "professional" -> Color(0xFFE3F2FD)
+                                                "witty" -> Color(0xFFFFF3E0)
+                                                else -> Color(0xFFFFEBEE)
+                                            }
+                                        )
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = tone.uppercase(),
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                        color = when (tone) {
+                                            "professional" -> Color(0xFF1E88E5)
+                                            "witty" -> Color(0xFFFB8C00)
+                                            else -> Color(0xFFE53935)
+                                        }
+                                    )
+                                }
+
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                Text(
+                                    text = description,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 5. Recent Activity Pipeline
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = "ACTIVE WORKFLOW PIPELINE",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
+                    ),
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
+
+                if (drafts.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Inbox,
+                                contentDescription = "Empty Pipeline",
+                                tint = MaterialTheme.colorScheme.outline,
+                                modifier = Modifier.size(36.dp)
+                            )
+                            Text(
+                                text = "Pipeline is currently empty",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Draft some digital posts using custom AI engines.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                            Button(
+                                onClick = { viewModel.setScreen(Screen.CREATE) },
+                                modifier = Modifier.padding(top = 8.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Engage AI Genie")
+                            }
+                        }
+                    }
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        drafts.take(3).forEach { draft ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("recent_draft_item_${draft.id}"),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.primaryContainer),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = when (draft.tone) {
+                                                "professional" -> Icons.Default.BusinessCenter
+                                                "witty" -> Icons.Default.Face
+                                                else -> Icons.Default.AutoAwesome
+                                            },
+                                            contentDescription = draft.tone,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+
+                                    Column(modifier = Modifier.weight(1.0f)) {
+                                        Text(
+                                            text = draft.originalIdea,
+                                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                            modifier = Modifier.padding(top = 2.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(4.dp))
+                                                    .background(
+                                                        when (draft.status) {
+                                                            "POSTED" -> Color(0xFFE8F5E9)
+                                                            "SCHEDULED" -> Color(0xFFFFF3E0)
+                                                            else -> Color(0xFFF1F5F9)
+                                                        }
+                                                    )
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                                            ) {
+                                                Text(
+                                                    text = draft.status,
+                                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                                    color = when (draft.status) {
+                                                        "POSTED" -> Color(0xFF2E7D32)
+                                                        "SCHEDULED" -> Color(0xFFE65100)
+                                                        else -> Color(0xFF475569)
+                                                    }
+                                                )
+                                            }
+
+                                            Text(
+                                                text = "• " + draft.tone.replaceFirstChar { it.uppercase() },
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+
+                                    if (draft.status != "POSTED") {
+                                        IconButton(
+                                            onClick = { viewModel.publishDraftInstantly(draft) },
+                                            modifier = Modifier.testTag("instant_publish_draft_${draft.id}")
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                                contentDescription = "Publish instantly",
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    } else {
+                                        IconButton(
+                                            onClick = { viewModel.setScreen(Screen.ANALYTICS) }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                contentDescription = "View Analytics",
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1212,7 +1806,7 @@ fun AnalyticsScreen(viewModel: MainViewModel, drafts: List<PostDraft>) {
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 AnalyticsKpiCard("Engagements", (totalLikes + totalComments + totalShares).toString(), Icons.Default.Insights, modifier = Modifier.weight(1f))
-                AnalyticsKpiCard("Conversion Share", if (totalViews > 0) String.format("%.2f%%", (totalLikes.toFloat() / totalViews) * 100) else "0%", Icons.Default.Percent, modifier = Modifier.weight(1f))
+                AnalyticsKpiCard("Conversion Share", if (totalViews > 0) String.format(java.util.Locale.US, "%.2f%%", (totalLikes.toFloat() / totalViews) * 100) else "0%", Icons.Default.Percent, modifier = Modifier.weight(1f))
             }
         }
 

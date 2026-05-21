@@ -3,6 +3,9 @@ package com.example
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.example.ui.theme.MyApplicationTheme
+import com.example.ui.SocialGenieApp
+import com.example.ui.MainViewModel
+import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
@@ -25,4 +28,17 @@ class GreetingScreenshotTest {
 
     composeTestRule.onRoot().captureRoboImage(filePath = "src/test/screenshots/greeting.png")
   }
+
+  @Test
+  fun app_render_test() {
+    val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = MainViewModel(context)
+    composeTestRule.setContent {
+      MyApplicationTheme {
+        SocialGenieApp(viewModel = viewModel)
+      }
+    }
+    composeTestRule.onRoot().captureRoboImage(filePath = "src/test/screenshots/app_dashboard.png")
+  }
 }
+
