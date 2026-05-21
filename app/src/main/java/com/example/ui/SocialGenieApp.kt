@@ -173,19 +173,13 @@ fun SocialGenieApp(viewModel: MainViewModel) {
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            Crossfade(
-                targetState = viewModel.activeScreen,
-                animationSpec = spring(),
-                label = "ScreenTransitions"
-            ) { screen ->
-                when (screen) {
-                    Screen.DASHBOARD -> DashboardScreen(viewModel, drafts, templates, profiles)
-                    Screen.CREATE -> CreateScreen(viewModel)
-                    Screen.SCHEDULE -> ScheduleScreen(viewModel, drafts)
-                    Screen.ANALYTICS -> AnalyticsScreen(viewModel, drafts)
-                    Screen.TEMPLATES -> TemplatesScreen(viewModel, templates)
-                    Screen.TEAM -> TeamScreen(viewModel, profiles)
-                }
+            when (viewModel.activeScreen) {
+                Screen.DASHBOARD -> DashboardScreen(viewModel, drafts, templates, profiles)
+                Screen.CREATE -> CreateScreen(viewModel)
+                Screen.SCHEDULE -> ScheduleScreen(viewModel, drafts)
+                Screen.ANALYTICS -> AnalyticsScreen(viewModel, drafts)
+                Screen.TEMPLATES -> TemplatesScreen(viewModel, templates)
+                Screen.TEAM -> TeamScreen(viewModel, profiles)
             }
         }
     }
